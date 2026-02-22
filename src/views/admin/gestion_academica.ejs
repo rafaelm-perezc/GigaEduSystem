@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión Académica | Giga-Edu</title>
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/sweetalert2/sweetalert2.all.min.js"></script>
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-secondary">Gestión del Plan de Estudios</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+            
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-primary text-white">Nueva Área</div>
+                <div class="card-body">
+                    <form action="/admin/academico/area" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Área</label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Ej: Ciencias Naturales" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Crear Área</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">Nueva Asignatura</div>
+                <div class="card-body">
+                    <form action="/admin/academico/asignatura" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Pertenece al Área de:</label>
+                            <select name="id_area" class="form-select" required>
+                                <option value="">Seleccione un área...</option>
+                                <% areas.forEach(area => { %>
+                                    <option value="<%= area.id %>"><%= area.nombre %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de la Asignatura</label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Ej: Física" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Peso Porcentual (%)</label>
+                            <input type="number" step="0.1" name="peso_porcentual" class="form-control" placeholder="Ej: 50" required>
+                            <small class="text-muted">Cuánto vale esta materia dentro del área.</small>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Agregar Asignatura</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">Estructura Curricular Actual</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Área</th>
+                                <th>Asignatura</th>
+                                <th>Peso (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if(asignaturas.length === 0) { %>
+                                <tr><td colspan="3" class="text-center text-muted py-4">No hay asignaturas registradas.</td></tr>
+                            <% } else { %>
+                                <% asignaturas.forEach(asig => { %>
+                                    <tr>
+                                        <td class="fw-bold"><%= asig.nombre_area %></td>
+                                        <td><%= asig.nombre %></td>
+                                        <td><span class="badge bg-secondary"><%= asig.peso_porcentual %>%</span></td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Leemos la URL para ver si el backend nos mandó un mensaje de éxito
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('msg') === 'area_ok') {
+        Swal.fire('¡Éxito!', 'Área creada correctamente', 'success');
+    } else if (params.get('msg') === 'asig_ok') {
+        Swal.fire('¡Éxito!', 'Asignatura agregada correctamente', 'success');
+    }
+</script>
+
+</body>
+</html>

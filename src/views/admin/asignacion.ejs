@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carga Académica | Giga-Edu</title>
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/sweetalert2/sweetalert2.all.min.js"></script>
+</head>
+<body class="bg-light">
+
+<div class="container-fluid mt-4 px-4">
+    <h2 class="mb-4 text-secondary">Panel de Personal y Carga Académica</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white">1. Registrar Docente</div>
+                <div class="card-body">
+                    <form action="/admin/asignacion/docente" method="POST">
+                        <div class="mb-2">
+                            <input type="text" name="documento" class="form-control" placeholder="Documento (Será su contraseña)" required>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" name="nombres" class="form-control" placeholder="Nombres" required>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" name="apellidos" class="form-control" placeholder="Apellidos" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" name="email" class="form-control" placeholder="Correo electrónico">
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100">Guardar Docente</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">2. Crear Grupo / Salón</div>
+                <div class="card-body">
+                    <form action="/admin/asignacion/grupo" method="POST">
+                        <div class="mb-2">
+                            <select name="id_grado" class="form-select" required>
+                                <option value="">Seleccione Grado...</option>
+                                <% grados.forEach(g => { %> <option value="<%= g.id %>"><%= g.nombre %></option> <% }) %>
+                            </select>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <input type="text" name="nomenclatura" class="form-control" placeholder="Grupo (Ej: A, B, 01)" required>
+                            </div>
+                            <div class="col-6">
+                                <select name="jornada" class="form-select" required>
+                                    <option value="Mañana">Mañana</option>
+                                    <option value="Tarde">Tarde</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Director de Grado (Opcional):</label>
+                            <select name="id_docente_director" class="form-select">
+                                <option value="">Sin asignar...</option>
+                                <% docentes.forEach(d => { %> <option value="<%= d.id %>"><%= d.nombres %> <%= d.apellidos %></option> <% }) %>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Crear Grupo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white">3. Asignar Carga Académica</div>
+                <div class="card-body">
+                    <form action="/admin/asignacion/carga" method="POST">
+                        <div class="mb-2">
+                            <select name="id_docente" class="form-select" required>
+                                <option value="">Seleccione Docente...</option>
+                                <% docentes.forEach(d => { %> <option value="<%= d.id %>"><%= d.nombres %> <%= d.apellidos %></option> <% }) %>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <select name="id_asignatura" class="form-select" required>
+                                <option value="">Seleccione Asignatura...</option>
+                                <% asignaturas.forEach(a => { %> <option value="<%= a.id %>"><%= a.nombre %></option> <% }) %>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <select name="id_grupo" class="form-select" required>
+                                <option value="">Seleccione Grupo...</option>
+                                <% grupos.forEach(g => { %> <option value="<%= g.id %>"><%= g.grado %> - <%= g.nomenclatura %> (<%= g.jornada %>)</option> <% }) %>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Asignar Clase</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('msg') === 'docente_ok') Swal.fire('¡Éxito!', 'Docente registrado correctamente', 'success');
+    if (params.get('msg') === 'grupo_ok') Swal.fire('¡Éxito!', 'Grupo creado correctamente', 'success');
+    if (params.get('msg') === 'asig_ok') Swal.fire('¡Éxito!', 'Carga asignada correctamente', 'success');
+    if (params.get('msg') === 'error') Swal.fire('Error', 'Hubo un problema procesando la solicitud', 'error');
+</script>
+
+</body>
+</html>

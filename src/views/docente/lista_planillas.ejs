@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Clases | Giga-Edu</title>
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2 class="mb-4 text-primary">Panel de Docente: Mis Clases Asignadas</h2>
+    <div class="row">
+        <% if(clases.length === 0) { %>
+            <div class="alert alert-warning">No tienes clases asignadas actualmente.</div>
+        <% } else { %>
+            <% clases.forEach(c => { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold"><%= c.asignatura %></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><%= c.grado %> - <%= c.nomenclatura %></h6>
+                            <p class="small text-secondary mb-3">Docente: <%= c.nombres %> <%= c.apellidos %></p>
+                            <a href="/docente/planillas/<%= c.id_asignacion %>" class="btn btn-outline-primary w-100">Abrir Planilla</a>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+</div>
+</body>
+</html>

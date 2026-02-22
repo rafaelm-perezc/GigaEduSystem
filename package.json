@@ -2,8 +2,10 @@
   "name": "gigaedusystem",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
+    "start": "electron .",
+    "dev": "nodemon --ignore \"data/*\" src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,20 +15,25 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.6.2",
+    "bootstrap": "^5.3.8",
     "dotenv": "^17.3.1",
     "ejs": "^4.0.1",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "firebase": "^12.9.0",
+    "firebase-admin": "^13.6.1",
     "html5-qrcode": "^2.3.8",
     "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",
     "multer": "^2.0.2",
     "qrcode": "^1.5.4",
+    "sweetalert2": "^11.26.20",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "electron": "^40.6.0"
+    "@electron/rebuild": "^4.0.3",
+    "electron": "^40.6.0",
+    "nodemon": "^3.1.14"
   }
 }

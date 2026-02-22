@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrículas | Giga-Edu</title>
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/sweetalert2/sweetalert2.all.min.js"></script>
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-secondary">Matrícula de Estudiantes</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">Ingreso de Estudiante</div>
+                <div class="card-body">
+                    <form action="/admin/matriculas" method="POST">
+                        <div class="row mb-2">
+                            <div class="col-4">
+                                <select name="tipo_documento" class="form-select" required>
+                                    <option value="TI">TI</option>
+                                    <option value="CC">CC</option>
+                                    <option value="RC">RC</option>
+                                </select>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" name="documento" class="form-control" placeholder="No. Documento" required>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" name="nombres" class="form-control" placeholder="Nombres Completos" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="apellidos" class="form-control" placeholder="Apellidos Completos" required>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Asignar al Grupo:</label>
+                            <select name="id_grupo" class="form-select" required>
+                                <option value="">Seleccione el salón...</option>
+                                <% grupos.forEach(g => { %> 
+                                    <option value="<%= g.id %>"><%= g.grado %> - <%= g.nomenclatura %> (<%= g.jornada %>)</option> 
+                                <% }) %>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Matricular Estudiante</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">Últimos Registros (Periodo Actual)</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Documento</th>
+                                <th>Estudiante</th>
+                                <th>Grado y Grupo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if(matriculados.length === 0) { %>
+                                <tr><td colspan="3" class="text-center text-muted py-4">No hay estudiantes matriculados aún.</td></tr>
+                            <% } else { %>
+                                <% matriculados.forEach(est => { %>
+                                    <tr>
+                                        <td><span class="badge bg-secondary"><%= est.documento %></span></td>
+                                        <td><%= est.apellidos %> <%= est.nombres %></td>
+                                        <td class="fw-bold text-primary"><%= est.grado %> - <%= est.nomenclatura %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('msg') === 'mat_ok') {
+        Swal.fire({
+            title: '¡Matriculado!',
+            text: 'El estudiante fue asignado al grupo correctamente.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    } else if (params.get('msg') === 'error') {
+        Swal.fire('Error', 'Hubo un problema procesando la matrícula.', 'error');
+    }
+</script>
+
+</body>
+</html>

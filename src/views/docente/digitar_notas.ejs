@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Planilla | Giga-Edu</title>
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/sweetalert2/sweetalert2.all.min.js"></script>
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-secondary"><%= clase.asignatura %> | <span class="text-primary"><%= clase.grado %> - <%= clase.nomenclatura %></span></h3>
+        <a href="/docente/planillas" class="btn btn-secondary">Volver a mis clases</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white">
+            Planilla de Calificaciones (Periodo 1)
+        </div>
+        <div class="card-body p-0">
+            <form action="/docente/planillas/guardar" method="POST">
+                <input type="hidden" name="id_asignacion" value="<%= clase.id %>">
+                <input type="hidden" name="id_asignatura" value="<%= clase.id_asignatura %>">
+                <input type="hidden" name="id_docente" value="<%= clase.id_docente %>">
+
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="65%">Apellidos y Nombres</th>
+                            <th width="30%">Nota Definitiva (1.0 - 5.0)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(estudiantes.length === 0) { %>
+                            <tr><td colspan="3" class="text-center py-4">No hay estudiantes matriculados en este grupo.</td></tr>
+                        <% } else { %>
+                            <% estudiantes.forEach((est, index) => { %>
+                                <tr>
+                                    <td class="align-middle"><%= index + 1 %></td>
+                                    <td class="align-middle fw-bold"><%= est.apellidos %> <%= est.nombres %></td>
+                                    <td>
+                                        <input type="number" step="0.1" min="1.0" max="5.0" name="notas[<%= est.id_matricula %>]" class="form-control text-center fw-bold" placeholder="-" required>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+                <div class="p-3 bg-light border-top text-end">
+                    <button type="submit" class="btn btn-success px-5">Guardar Calificaciones</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('msg') === 'guardado') {
+        Swal.fire({
+            title: '¡Notas Guardadas!',
+            text: 'Las calificaciones se registraron en la base de datos.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+</script>
+</body>
+</html>
