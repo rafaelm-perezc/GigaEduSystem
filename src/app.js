@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 require('dotenv').config();
+const session = require('express-session');
+const bcrypt = require('bcryptjs'); // Lo usaremos para crear el admin por defecto
 
 // 1. Inicializar la Base de Datos
 // Al requerir este archivo, Node ejecutará el código de database.js, 
@@ -29,6 +31,21 @@ app.use('/sweetalert2', express.static(path.join(__dirname, '../node_modules/swe
 // Permiten que el servidor entienda la información que viene de los formularios HTML y formato JSON
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+// Configuración de Sesiones (Memoria de usuario)
+app.use(session({
+    secret: 'giga_edu_super_secreto_123',
+    resave: false,
+    saveUninitialized: false
+}));
+
+// Crear Super Administrador por defecto si no existe
+const adminCount = db.prepare("SELECT COUNT(*) as count FROM usuarios WHERE rol = 'ADMIN'").get();
+if(adminCount.count === 0) {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync('admin123', salt);
+    db.prepare("INSERT INTO usuarios (id, documento, nombres, apellidos, rol, password_hash) VALUES ('admin-uuid', 'admin', 'Super', 'Administrador', 'ADMIN', ?)").run(hash);
+    console.log("🔑 Usuario administrador por defecto creado. (Usuario: admin / Clave: admin123)");
+}
 
 const adminRoutes = require('./routes/adminRoutes');
 app.use('/admin', adminRoutes);
@@ -36,33 +53,23 @@ const docenteRoutes = require('./routes/docenteRoutes');
 app.use('/docente', docenteRoutes);
 
 // 6. Ruta Principal (Dashboard de Navegación Temporal)
-app.get('/', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Giga-Edu ERP | Menú Principal</title>
-            <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        </head>
-        <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
-            <div class="container text-center">
-                <h1 class="mb-2 text-primary fw-bold">Giga-Edu ERP</h1>
-                <p class="text-muted mb-5">Sistema Integral de Gestión Educativa</p>
-                
-                <div class="row justify-content-center g-4">
-                    <div class="col-md-4"><a href="/admin/configuracion" class="btn btn-dark btn-lg w-100 py-4 shadow-sm">1. Configuración Institucional</a></div>
-                    <div class="col-md-4"><a href="/admin/academico" class="btn btn-primary btn-lg w-100 py-4 shadow-sm">2. Plan de Estudios</a></div>
-                    <div class="col-md-4"><a href="/admin/asignacion" class="btn btn-success btn-lg w-100 py-4 shadow-sm">3. Personal y Carga Académica</a></div>
-                    
-                    <div class="col-md-4"><a href="/admin/matriculas" class="btn btn-info btn-lg w-100 py-4 shadow-sm text-white">4. Matricular Estudiantes</a></div>
-                    <div class="col-md-4"><a href="/docente/planillas" class="btn btn-warning btn-lg w-100 py-4 shadow-sm">5. Panel Docente (Notas)</a></div>
-                    <div class="col-md-4"><a href="/admin/boletines" class="btn btn-danger btn-lg w-100 py-4 shadow-sm">6. Generar Boletines PDF</a></div>
-                </div>
-            </div>
-        </body>
-        </html>
-    `);
+// Conectar rutas de Login
+const authRoutes = require('./routes/authRoutes');
+app.use('/', authRoutes);
+
+// Rutas de Estudiantes
+const estudianteRoutes = require('./routes/estudianteRoutes');
+app.use('/estudiante', estudianteRoutes);
+
+// Ruta Protegida: Menú Principal (Dashboard)
+app.get('/dashboard', (req, res) => {
+    // Si no hay sesión, lo devolvemos a la puerta (Login)
+    if (!req.session.usuario) {
+        return res.redirect('/');
+    }
+    
+    // Le pasamos los datos del usuario a la vista para que diga "Hola, Carlos"
+    res.render('dashboard', { usuario: req.session.usuario });
 });
 
 // 7. Arrancar el Servidor Local

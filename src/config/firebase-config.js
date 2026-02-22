@@ -9,7 +9,7 @@ const serviceAccount = require(serviceAccountPath);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   // Asegúrate de cambiar esto si tu bucket se llama distinto en Firebase Storage
-  storageBucket: "gigaedusystem.appspot.com" 
+  storageBucket: "gigaedusystem.firebasestorage.app" 
 });
 
 // Exportamos los dos servicios que necesitamos: Firestore y Storage

@@ -25,6 +25,7 @@ function createWindow() {
     // 3. Le decimos a la ventana que cargue nuestro servidor local
     const PORT = process.env.PORT || 3000;
     mainWindow.loadURL(`http://localhost:${PORT}`);
+    mainWindow.webContents.openDevTools();
 
     // 4. Si la ventana se cierra, limpiamos la memoria
     mainWindow.on('closed', () => {
@@ -44,8 +45,8 @@ app.whenReady().then(() => {
 });
 
 // Cerrar el programa completo cuando se cierren todas las ventanas
+// Cerrar el programa completo cuando se cierren todas las ventanas
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+    app.quit();
+    process.exit(0); // MATA el servidor Node.js y destruye cualquier sesión activa de inmediato
 });

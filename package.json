@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "nodemon --ignore \"data/*\" src/app.js",
+    "dev": "nodemon --watch src --ignore \"data/*\" --ext js,ejs,html --exec \"electron .\"",
     "dist": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -40,4 +40,19 @@ function inicializarBaseDeDatos() {
 
 inicializarBaseDeDatos();
 
+// Migración en caliente: Agregar nuevos campos a estudiantes sin borrar datos
+try {
+    const columnas = ['fecha_nacimiento', 'direccion', 'telefono', 'email', 'acudiente_nombre', 'acudiente_telefono'];
+    for (const col of columnas) {
+        try {
+            db.exec(`ALTER TABLE estudiantes ADD COLUMN ${col} TEXT;`);
+        } catch (e) {
+            // Si la columna ya existe, SQLite arrojará un error que simplemente ignoramos
+        }
+    }
+    console.log('✅ Estructura de estudiantes actualizada con datos de contacto.');
+} catch (error) {
+    console.log('Error en migración:', error);
+}
+
 module.exports = db;
