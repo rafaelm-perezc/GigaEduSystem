@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
     <title>Giga-Edu ERP | Panel Principal</title>
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <script src="/sweetalert2/sweetalert2.all.min.js"></script>
@@ -13,8 +13,8 @@
     <div class="container">
         <span class="navbar-brand mb-0 h1">Giga-Edu ERP</span>
         <div class="d-flex align-items-center">
-            <span class="text-white me-3">👤 Hola, <%= usuario.nombres %> (<%= usuario.rol %>)</span>
-            <a href="/logout" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+            <span class="text-white me-3">👤 Hola, <%= usuario.primer_nombre %> <%= usuario.primer_apellido %> (<%= usuario.rol %>)</span>
+            <button onclick="confirmarSalida()" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
         </div>
     </div>
 </nav>
@@ -73,6 +73,31 @@
 
     </div>
 </div>
+
+<script>
+    function confirmarSalida() {
+        Swal.fire({
+            title: '¿Desea salir del sistema?',
+            text: "Seleccione si desea cambiar de usuario o apagar el programa completamente.",
+            icon: 'question',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: '🔄 Cambiar Usuario (Cerrar Sesión)',
+            denyButtonText: '🛑 Apagar Programa',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            denyButtonColor: '#d33'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Opción 1: Solo cerrar sesión y volver al login
+                window.location.href = '/logout';
+            } else if (result.isDenied) {
+                // Opción 2: Matar el proceso y la ventana
+                window.location.href = '/shutdown';
+            }
+        });
+    }
+</script>
 
 </body>
 </html>
