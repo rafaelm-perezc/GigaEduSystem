@@ -20,6 +20,16 @@ app.set('views', path.join(__dirname, 'views'));
 // 4. Configuración de Archivos Estáticos
 // Permite que el navegador lea los estilos, imágenes y archivos PDF generados
 app.use(express.static(path.join(__dirname, '../public')));
+// Enrutamiento inteligente de imágenes
+const isPackaged = __dirname.includes('app.asar');
+let uploadsDir;
+if (isPackaged) {
+    const userDataPath = path.join(process.env.APPDATA || process.env.HOME + '/.local/share', 'GigaEduSystem');
+    uploadsDir = path.join(userDataPath, 'uploads');
+} else {
+    uploadsDir = path.join(__dirname, '../public/uploads');
+}
+app.use('/uploads', express.static(uploadsDir));
 // NUEVO: Exponer Bootstrap y SweetAlert2 directamente desde node_modules (100% Offline)
 app.use('/bootstrap', express.static(path.join(__dirname, '../node_modules/bootstrap/dist')));
 // Exponer jsPDF y AutoTable (100% Offline)

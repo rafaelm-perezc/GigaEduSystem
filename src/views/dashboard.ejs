@@ -26,78 +26,20 @@
     </div>
     
     <div class="row justify-content-center g-4">
-        
         <% if (usuario.rol === 'ADMIN' || usuario.rol === 'SECRETARIA' || usuario.rol === 'DOCENTE') { %>
-            <div class="col-md-4">
-                <a href="/admin/configuracion" class="btn btn-dark btn-lg w-100 py-4 shadow-sm d-flex flex-column align-items-center">
-                    <span class="fs-4 mb-2">⚙️</span> Configuración Institucional
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="/admin/academico" class="btn btn-primary btn-lg w-100 py-4 shadow-sm d-flex flex-column align-items-center">
-                    <span class="fs-4 mb-2">📚</span> Plan de Estudios y Áreas
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="/admin/asignacion" class="btn btn-success btn-lg w-100 py-4 shadow-sm d-flex flex-column align-items-center">
-                    <span class="fs-4 mb-2">👨‍🏫</span> Personal y Cargas
-                </a>
-            </div>
-            
-            <div class="col-md-4">
-                <a href="/admin/matriculas" class="btn btn-info text-white btn-lg w-100 py-4 shadow-sm d-flex flex-column align-items-center">
-                    <span class="fs-4 mb-2">📝</span> Matricular Estudiantes
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="/docente/planillas" class="btn btn-warning btn-lg w-100 py-4 shadow-sm d-flex flex-column align-items-center">
-                    <span class="fs-4 mb-2">✍️</span> Panel Docente (Notas)
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="/admin/boletines" class="btn btn-danger btn-lg w-100 py-4 shadow-sm d-flex flex-column align-items-center">
-                    <span class="fs-4 mb-2">📄</span> Generar Boletines PDF
-                </a>
-            </div>
+            <div class="col-md-4"><a href="/admin/configuracion" class="btn btn-dark btn-lg w-100 py-4 shadow-sm"><span class="fs-4 d-block mb-2">⚙️</span>Configuración</a></div>
+            <div class="col-md-4"><a href="/admin/academico" class="btn btn-primary btn-lg w-100 py-4 shadow-sm"><span class="fs-4 d-block mb-2">📚</span>Plan de Estudios</a></div>
+            <div class="col-md-4"><a href="/admin/asignacion" class="btn btn-success btn-lg w-100 py-4 shadow-sm"><span class="fs-4 d-block mb-2">👨‍🏫</span>Personal y Cargas</a></div>
+            <div class="col-md-4"><a href="/admin/matriculas" class="btn btn-info text-white btn-lg w-100 py-4 shadow-sm"><span class="fs-4 d-block mb-2">📝</span>Matrículas</a></div>
+            <div class="col-md-4"><a href="/docente/planillas" class="btn btn-warning btn-lg w-100 py-4 shadow-sm"><span class="fs-4 d-block mb-2">✍️</span>Panel Docente</a></div>
+            <div class="col-md-4"><a href="/admin/boletines" class="btn btn-danger btn-lg w-100 py-4 shadow-sm"><span class="fs-4 d-block mb-2">📄</span>Boletines PDF</a></div>
         <% } %>
-
         <% if (usuario.rol === 'ESTUDIANTE') { %>
-            <div class="col-md-6">
-                <a href="/estudiante/mis-notas" class="btn btn-primary btn-lg w-100 py-5 shadow-sm d-flex flex-column align-items-center">
-                    <span class="fs-1 mb-2">📊</span>
-                    <span class="fw-bold">Ver Mis Calificaciones y Ranking</span>
-                    <small class="text-white-50 mt-2">Consulta tu desempeño y puesto actual</small>
-                </a>
-            </div>
+            <div class="col-md-6"><a href="/estudiante/mis-notas" class="btn btn-primary btn-lg w-100 py-5 shadow-sm"><span class="fs-1 d-block mb-2">📊</span>Ver Mis Calificaciones</a></div>
         <% } %>
-
     </div>
 </div>
 
-<script>
-    function confirmarSalida() {
-        Swal.fire({
-            title: '¿Desea salir del sistema?',
-            text: "Seleccione si desea cambiar de usuario o apagar el programa completamente.",
-            icon: 'question',
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: '🔄 Cambiar Usuario (Cerrar Sesión)',
-            denyButtonText: '🛑 Apagar Programa',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#3085d6',
-            denyButtonColor: '#d33'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Opción 1: Solo cerrar sesión y volver al login
-                window.location.href = '/logout';
-            } else if (result.isDenied) {
-                // Opción 2: Matar el proceso y la ventana
-                window.location.href = '/shutdown';
-            }
-        });
-    }
-</script>
-
+<script src="/js/dashboard.js"></script>
 </body>
 </html>

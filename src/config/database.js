@@ -2,57 +2,35 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-// 1. Determinar dónde guardar la base de datos de forma segura
-let dbFolder;
+// DETECCIÓN INTELIGENTE: ¿Estamos compilados en producción?
+const isPackaged = __dirname.includes('app.asar');
 
-// Si detectamos que estamos dentro del archivo empaquetado 'app.asar', es el programa instalado (.exe)
-if (__dirname.includes('app.asar')) {
-    // Usamos la carpeta segura de Windows para datos de usuario (AppData\Roaming\GigaEduSystem)
-    dbFolder = path.join(process.env.APPDATA || process.env.USERPROFILE, 'GigaEduSystem');
+let dataDir;
+if (isPackaged) {
+    // PRODUCCIÓN: En el instalador, usamos %appdata% para evitar bloqueos de Windows
+    dataDir = path.join(process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share"), 'GigaEduSystem');
 } else {
-    // Si estamos programando en VSCode, usamos la carpeta 'data' normal
-    dbFolder = path.join(__dirname, '../../data');
+    // DESARROLLO: En VSCode, usamos la carpeta local 'data'
+    dataDir = path.join(__dirname, '../../data');
 }
 
-// 2. Asegurarnos de que la carpeta exista. Si no existe, la crea.
-if (!fs.existsSync(dbFolder)) {
-    fs.mkdirSync(dbFolder, { recursive: true });
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
 }
 
-// Armar la ruta final del archivo
-const dbPath = path.join(dbFolder, 'giga_edu.sqlite');
+const dbPath = path.join(dataDir, 'database.sqlite');
+const db = new Database(dbPath);
 
-// 3. Iniciar la conexión
-const db = new Database(dbPath, { verbose: console.log });
-db.pragma('journal_mode = WAL');
-
-// 4. Función para leer el esquema y construir las tablas
 function inicializarBaseDeDatos() {
     try {
-        const sqlPath = path.join(__dirname, '../models/init_db.sql');
-        const sqlSchema = fs.readFileSync(sqlPath, 'utf8');
-        db.exec(sqlSchema);
-        console.log('✅ Base de datos SQLite inicializada correctamente en:', dbPath);
-    } catch (error) {
-        console.error('❌ Error crítico al inicializar la base de datos:', error);
+        const initScriptPath = path.join(__dirname, '../models/init_db.sql');
+        const initScript = fs.readFileSync(initScriptPath, 'utf8');
+        db.exec(initScript);
+        console.log(isPackaged ? '✅ BD lista en AppData (Producción)' : '✅ BD lista en /data (Desarrollo)');
+    } catch (error) { 
+        console.error('❌ Error inicializando la BD:', error); 
     }
 }
 
 inicializarBaseDeDatos();
-
-// Migración en caliente: Agregar nuevos campos a estudiantes sin borrar datos
-try {
-    const columnas = ['fecha_nacimiento', 'direccion', 'telefono', 'email', 'acudiente_nombre', 'acudiente_telefono'];
-    for (const col of columnas) {
-        try {
-            db.exec(`ALTER TABLE estudiantes ADD COLUMN ${col} TEXT;`);
-        } catch (e) {
-            // Si la columna ya existe, SQLite arrojará un error que simplemente ignoramos
-        }
-    }
-    console.log('✅ Estructura de estudiantes actualizada con datos de contacto.');
-} catch (error) {
-    console.log('Error en migración:', error);
-}
-
 module.exports = db;

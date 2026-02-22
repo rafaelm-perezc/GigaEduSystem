@@ -3,112 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
-    <title>Configuración Institucional | Giga-Edu</title>
+    <title>Configuración | Giga-Edu</title>
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <script src="/sweetalert2/sweetalert2.all.min.js"></script>
 </head>
 <body class="bg-light">
 
 <nav class="navbar navbar-dark bg-dark shadow-sm mb-4">
-    <div class="container-fluid px-4">
-        <span class="navbar-brand mb-0 h1">Giga-Edu ERP</span>
-        <a href="/dashboard" class="btn btn-outline-light btn-sm">⬅ Volver al Menú Principal</a>
-    </div>
+    <div class="container-fluid px-4"><span class="navbar-brand mb-0 h1">Giga-Edu ERP</span><a href="/dashboard" class="btn btn-outline-light btn-sm">⬅ Volver al Menú</a></div>
 </nav>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-dark text-white text-center py-3">
-                    <h4 class="mb-0">⚙️ Configuración Base de la Institución</h4>
-                </div>
+            <div class="card shadow-lg border-0 rounded-lg mb-5">
+                <div class="card-header bg-dark text-white text-center py-3"><h4 class="mb-0">⚙️ Configuración Base</h4></div>
                 <div class="card-body p-4">
                     
                     <form action="/admin/configuracion" method="POST" enctype="multipart/form-data">
-                        
-                        <h6 class="text-primary border-bottom pb-2 mb-3">Información Legal y Académica</h6>
+                        <h6 class="text-primary border-bottom pb-2 mb-3">Información Legal y Sede Única</h6>
                         <div class="row mb-3">
-                            <div class="col-md-8">
-                                <label class="small fw-bold mb-1">Nombre Completo de la Institución</label>
-                                <input type="text" name="nombre" class="form-control text-uppercase" value="<%= config.nombre %>" placeholder="Ej: I.E. TÉCNICA CAMPOALEGRE" required>
-                            </div>
+                            <div class="col-md-8"><label class="small fw-bold">Nombre de la Institución</label><input type="text" name="nombre" class="form-control text-uppercase" value="<%= config.nombre %>" required></div>
                             <div class="col-md-4">
-                                <label class="small fw-bold mb-1">Resolución de Aprobación</label>
-                                <input type="text" name="resolucion" class="form-control" value="<%= config.resolucion %>" placeholder="Ej: Res. 1234 de 2023">
+                                <label class="small fw-bold">Jornada Principal (Sede Única)</label>
+                                <div class="input-group">
+                                    <select name="jornada_numero" id="jornada_numero" class="form-select" required>
+                                        <option value="">No.</option>
+                                        <option value="1" <%= config.jornada === 'Completa' ? 'selected' : '' %>>1</option>
+                                        <option value="2" <%= config.jornada === 'Mañana' ? 'selected' : '' %>>2</option>
+                                        <option value="3" <%= config.jornada === 'Tarde' ? 'selected' : '' %>>3</option>
+                                        <option value="4" <%= config.jornada === 'Nocturna' ? 'selected' : '' %>>4</option>
+                                        <option value="5" <%= config.jornada === 'Fin de semana' ? 'selected' : '' %>>5</option>
+                                        <option value="6" <%= config.jornada === 'Única' ? 'selected' : '' %>>6</option>
+                                    </select>
+                                    <span class="input-group-text bg-white text-primary fw-bold" id="jornada_span" style="min-width: 130px;"><%= config.jornada || 'Seleccione...' %></span>
+                                </div>
                             </div>
                         </div>
-
                         <div class="row mb-4">
-                            <div class="col-md-4">
-                                <label class="small fw-bold mb-1">NIT</label>
-                                <input type="text" name="nit" class="form-control" value="<%= config.nit %>" placeholder="Ej: 800.123.456-7" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="small fw-bold mb-1">Código DANE</label>
-                                <input type="text" name="dane" class="form-control" value="<%= config.dane %>" placeholder="12 dígitos">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="small fw-bold mb-1">Nombre del Rector(a)</label>
-                                <input type="text" name="rector_nombre" class="form-control text-uppercase" value="<%= config.rector_nombre %>" required>
-                            </div>
+                            <div class="col-md-4"><label class="small fw-bold">Ubicación (Mun, Dpto)</label><input type="text" name="ubicacion" class="form-control text-uppercase" value="<%= config.ubicacion %>"></div>
+                            <div class="col-md-3"><label class="small fw-bold">NIT</label><input type="text" name="nit" class="form-control" value="<%= config.nit %>" required></div>
+                            <div class="col-md-2"><label class="small fw-bold">DANE</label><input type="text" name="dane" class="form-control" value="<%= config.dane %>"></div>
+                            <div class="col-md-3"><label class="small fw-bold">Resolución</label><input type="text" name="resolucion" class="form-control text-uppercase" value="<%= config.resolucion %>"></div>
                         </div>
 
-                        <h6 class="text-primary border-bottom pb-2 mb-3">Sistema Institucional de Evaluación (SIEE)</h6>
+                        <h6 class="text-primary border-bottom pb-2 mb-3">Directivos</h6>
+                        <div class="row mb-4">
+                            <div class="col-md-4"><label class="small fw-bold">Rector(a)</label><input type="text" name="rector_nombre" class="form-control text-uppercase" value="<%= config.rector_nombre %>" required></div>
+                            <div class="col-md-4"><label class="small fw-bold">Coordinador(a) Académico</label><input type="text" name="coordinador_academico" class="form-control text-uppercase" value="<%= config.coordinador_academico %>"></div>
+                            <div class="col-md-4"><label class="small fw-bold">Coordinador(a) Disciplinario</label><input type="text" name="coordinador_disciplinario" class="form-control text-uppercase" value="<%= config.coordinador_disciplinario %>"></div>
+                        </div>
+
+                        <h6 class="text-primary border-bottom pb-2 mb-3">SIEE (Evaluación)</h6>
                         <div class="row mb-4 bg-light p-3 rounded border">
-                            <div class="col-md-6">
-                                <label class="small fw-bold mb-1">Nota Mínima Posible</label>
-                                <input type="number" step="0.1" name="escala_minima" class="form-control" value="<%= config.escala_minima %>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="small fw-bold mb-1">Nota Máxima Posible</label>
-                                <input type="number" step="0.1" name="escala_maxima" class="form-control" value="<%= config.escala_maxima %>" required>
-                            </div>
+                            <div class="col-md-6"><label class="small fw-bold">Nota Mínima</label><input type="number" step="0.1" name="escala_minima" class="form-control" value="<%= config.escala_minima %>" required></div>
+                            <div class="col-md-6"><label class="small fw-bold">Nota Máxima</label><input type="number" step="0.1" name="escala_maxima" class="form-control" value="<%= config.escala_maxima %>" required></div>
                         </div>
 
-                        <h6 class="text-primary border-bottom pb-2 mb-3">Identidad Visual (Modo Offline)</h6>
+                        <h6 class="text-primary border-bottom pb-2 mb-3">Identidad Visual</h6>
                         <div class="row mb-4">
-                            <div class="col-md-6 text-center">
-                                <label class="small fw-bold mb-2">Escudo Institucional (PNG/JPG)</label>
+                            <div class="col-md-4 text-center">
+                                <label class="small fw-bold mb-2">Escudo Institucional</label>
                                 <input type="file" name="logo" class="form-control mb-2" accept="image/*">
-                                <% if(config.url_logo) { %>
-                                    <div class="p-2 border rounded bg-white mt-2">
-                                        <img src="<%= config.url_logo %>" alt="Logo Actual" style="max-height: 80px; max-width: 100%; object-fit: contain;">
-                                        <div class="small text-success mt-1">Logo cargado localmente</div>
-                                    </div>
-                                <% } %>
+                                <% if(config.url_logo) { %><div class="p-2 border rounded bg-white mt-2"><img src="<%= config.url_logo %>" style="height: 80px; width: 100%; object-fit: contain;"></div><% } %>
                             </div>
-                            
-                            <div class="col-md-6 text-center">
-                                <label class="small fw-bold mb-2">Firma del Rector (PNG transparente)</label>
+                            <div class="col-md-4 text-center">
+                                <label class="small fw-bold mb-2">Escudo Departamental</label>
+                                <input type="file" name="logo_departamento" class="form-control mb-2" accept="image/*">
+                                <% if(config.url_logo_departamento) { %><div class="p-2 border rounded bg-white mt-2"><img src="<%= config.url_logo_departamento %>" style="height: 80px; width: 100%; object-fit: contain;"></div><% } %>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <label class="small fw-bold mb-2">Firma Rector(a)</label>
                                 <input type="file" name="firma_rector" class="form-control mb-2" accept="image/*">
-                                <% if(config.url_firma_rector) { %>
-                                    <div class="p-2 border rounded bg-white mt-2">
-                                        <img src="<%= config.url_firma_rector %>" alt="Firma Actual" style="max-height: 80px; max-width: 100%; object-fit: contain;">
-                                        <div class="small text-success mt-1">Firma cargada localmente</div>
-                                    </div>
-                                <% } %>
+                                <% if(config.url_firma_rector) { %><div class="p-2 border rounded bg-white mt-2"><img src="<%= config.url_firma_rector %>" style="height: 80px; width: 100%; object-fit: contain;"></div><% } %>
                             </div>
                         </div>
-
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-dark btn-lg">💾 Guardar Configuración Institucional</button>
-                        </div>
-                        
+                        <button type="submit" class="btn btn-dark btn-lg w-100">💾 Guardar Configuración</button>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    // Manejo de Alertas del Servidor (SweetAlert2)
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('msg') === 'ok') Swal.fire({ title: '¡Guardado!', text: 'La configuración y archivos se guardaron en modo Offline.', icon: 'success', timer: 2500, showConfirmButton: false });
-    if (params.get('msg') === 'error') Swal.fire('Error', 'Hubo un problema guardando los datos.', 'error');
-</script>
-
+<script src="/js/configuracion.js"></script>
 </body>
 </html>

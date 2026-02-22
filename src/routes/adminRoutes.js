@@ -12,7 +12,8 @@ const boletinController = require('../controllers/boletinController');
 // 1. Configuración Institucional
 router.get('/configuracion', configController.getConfiguracion);
 router.post('/configuracion', upload.fields([
-    { name: 'logo', maxCount: 1 }, 
+    { name: 'logo', maxCount: 1 },
+    { name: 'logo_departamento', maxCount: 1 }, 
     { name: 'firma_rector', maxCount: 1 }
 ]), configController.guardarConfiguracion);
 

@@ -26,7 +26,7 @@
                 <div class="card-header bg-white p-0 border-bottom-0">
                     <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
                         <li class="nav-item"><button class="nav-link active fw-bold" id="individual-tab" data-bs-toggle="tab" data-bs-target="#individual" type="button">Individual / Edición</button></li>
-                        <li class="nav-item"><button class="nav-link fw-bold text-success" data-bs-toggle="tab" data-bs-target="#masivo" type="button">Carga Masiva (Excel)</button></li>
+                        <li class="nav-item"><button class="nav-link fw-bold text-success" id="masivo-tab" data-bs-toggle="tab" data-bs-target="#masivo" type="button">Carga Masiva (Excel)</button></li>
                     </ul>
                 </div>
                 
@@ -45,6 +45,8 @@
                                             <option value="CC">CC</option>
                                             <option value="RC">RC</option>
                                             <option value="CE">CE</option>
+                                            <option value="PEP">PEP</option>
+                                            <option value="PPT">PPT</option>
                                         </select>
                                     </div>
                                     <div class="col-8">
@@ -66,7 +68,7 @@
 
                                 <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Datos de Contacto</h6>
                                 <div class="row mb-2">
-                                    <div class="col-12"><input type="text" name="direccion" id="direccion" class="form-control form-control-sm" placeholder="Dirección"></div>
+                                    <div class="col-12"><input type="text" name="direccion" id="direccion" class="form-control form-control-sm text-uppercase" placeholder="Dirección"></div>
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-6"><input type="text" name="telefono" id="telefono" class="form-control form-control-sm" placeholder="Teléfono"></div>
@@ -96,7 +98,6 @@
                         <div class="tab-pane fade" id="masivo">
                             <div class="text-center mb-4 mt-3">
                                 <a href="/admin/matriculas/plantilla" class="btn btn-outline-success"><span class="fs-5">📊</span> Descargar Plantilla Excel</a>
-                                <p class="small text-muted mt-2">La plantilla ahora tiene menú desplegable en la Columna J.</p>
                             </div>
                             <hr>
                             <form action="/admin/matriculas/masivo" method="POST" enctype="multipart/form-data" id="formMasivo">
@@ -117,7 +118,7 @@
                 </div>
                 
                 <div class="p-2 bg-light border-bottom">
-                    <input type="text" id="busqueda" class="form-control border-secondary" placeholder="🔍 Buscar por documento, nombres o apellidos (Se actualiza al escribir)..." autocomplete="off">
+                    <input type="text" id="busqueda" class="form-control border-secondary" placeholder="🔍 Buscar por documento, nombres o apellidos..." autocomplete="off">
                 </div>
 
                 <div class="card-body p-0" style="max-height: 650px; overflow-y: auto;">
@@ -143,9 +144,12 @@
                                         </td>
                                         <td class="align-middle text-center">
                                             <button class="btn btn-sm btn-outline-primary" onclick="editarEstudiante(this)" 
-                                                data-id="<%= est.id_estudiante %>" data-doc="<%= est.documento %>" 
+                                                data-id="<%= est.id_estudiante %>" data-tipo="<%= est.tipo_documento %>" data-doc="<%= est.documento %>" 
                                                 data-pnom="<%= est.primer_nombre %>" data-snom="<%= est.segundo_nombre %>" 
-                                                data-pape="<%= est.primer_apellido %>" data-sape="<%= est.segundo_apellido %>">
+                                                data-pape="<%= est.primer_apellido %>" data-sape="<%= est.segundo_apellido %>"
+                                                data-nac="<%= est.fecha_nacimiento %>" data-dir="<%= est.direccion %>" data-tel="<%= est.telefono %>"
+                                                data-email="<%= est.email %>" data-acunom="<%= est.acudiente_nombre %>" data-acutel="<%= est.acudiente_telefono %>"
+                                                data-grupo="<%= est.id_grupo %>">
                                                 ✏️ Editar
                                             </button>
                                         </td>

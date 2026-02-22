@@ -5,8 +5,8 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
     <title>Personal | Giga-Edu</title>
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <script src="/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/sweetalert2/sweetalert2.all.min.js"></script>
 </head>
 <body class="bg-light">
 
@@ -21,32 +21,39 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white p-0 border-bottom-0">
                     <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
-                        <li class="nav-item"><button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#docentes" type="button">Docentes</button></li>
-                        <li class="nav-item"><button class="nav-link fw-bold text-success" data-bs-toggle="tab" data-bs-target="#masivo" type="button">Excel</button></li>
-                        <li class="nav-item"><button class="nav-link fw-bold text-primary" data-bs-toggle="tab" data-bs-target="#grupos" type="button">Grupos</button></li>
+                        <li class="nav-item"><button class="nav-link active fw-bold" id="docentes-tab" data-bs-toggle="tab" data-bs-target="#docentes" type="button">Docentes</button></li>
+                        <li class="nav-item"><button class="nav-link fw-bold text-success" id="masivo-tab" data-bs-toggle="tab" data-bs-target="#masivo" type="button">Excel</button></li>
+                        <li class="nav-item"><button class="nav-link fw-bold text-primary" id="grupos-tab" data-bs-toggle="tab" data-bs-target="#grupos" type="button">Grupos</button></li>
                     </ul>
                 </div>
                 <div class="card-body">
                     <div class="tab-content" id="myTabContent">
                         
                         <div class="tab-pane fade show active" id="docentes">
-                            <form action="/admin/asignacion/docente" method="POST">
-                                <input type="text" name="documento" class="form-control mb-2" placeholder="Documento (Será su clave)" required>
+                            <form action="/admin/asignacion/docente" method="POST" id="formDocente">
+                                <input type="hidden" name="id_docente" id="id_docente">
+                                <input type="text" name="documento" id="documento" class="form-control mb-2" placeholder="Documento (Será su clave)" required>
                                 <div class="row mb-2">
-                                    <div class="col-6"><input type="text" name="primer_nombre" class="form-control form-control-sm text-uppercase" placeholder="1er Nombre" required></div>
-                                    <div class="col-6"><input type="text" name="segundo_nombre" class="form-control form-control-sm text-uppercase" placeholder="2do Nombre"></div>
+                                    <div class="col-6"><input type="text" name="primer_nombre" id="primer_nombre" class="form-control form-control-sm text-uppercase" placeholder="1er Nombre" required></div>
+                                    <div class="col-6"><input type="text" name="segundo_nombre" id="segundo_nombre" class="form-control form-control-sm text-uppercase" placeholder="2do Nombre"></div>
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col-6"><input type="text" name="primer_apellido" class="form-control form-control-sm text-uppercase" placeholder="1er Apellido" required></div>
-                                    <div class="col-6"><input type="text" name="segundo_apellido" class="form-control form-control-sm text-uppercase" placeholder="2do Apellido"></div>
+                                    <div class="col-6"><input type="text" name="primer_apellido" id="primer_apellido" class="form-control form-control-sm text-uppercase" placeholder="1er Apellido" required></div>
+                                    <div class="col-6"><input type="text" name="segundo_apellido" id="segundo_apellido" class="form-control form-control-sm text-uppercase" placeholder="2do Apellido"></div>
                                 </div>
-                                <input type="email" name="email" class="form-control form-control-sm mb-3" placeholder="Correo electrónico">
+                                <div class="row mb-3">
+                                    <div class="col-6"><input type="text" name="telefono" id="telefono" class="form-control form-control-sm" placeholder="Teléfono Propio" required></div>
+                                    <div class="col-6"><input type="email" name="email" id="email" class="form-control form-control-sm" placeholder="Correo electrónico"></div>
+                                </div>
                                 
                                 <h6 class="text-danger border-bottom pb-1 small">En caso de emergencia:</h6>
-                                <input type="text" name="contacto_emergencia_nombre" class="form-control form-control-sm text-uppercase mb-2" placeholder="Nombre Contacto">
-                                <input type="text" name="contacto_emergencia_telefono" class="form-control form-control-sm mb-3" placeholder="Teléfono Contacto">
+                                <input type="text" name="contacto_emergencia_nombre" id="contacto_emergencia_nombre" class="form-control form-control-sm text-uppercase mb-2" placeholder="Nombre Contacto">
+                                <input type="text" name="contacto_emergencia_telefono" id="contacto_emergencia_telefono" class="form-control form-control-sm mb-3" placeholder="Teléfono Contacto">
                                 
-                                <button type="submit" class="btn btn-dark w-100">Guardar Docente</button>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-secondary w-25" onclick="limpiarFormularioDocente()">Limpiar</button>
+                                    <button type="submit" class="btn btn-dark w-75" id="btnGuardarDocente">Guardar Docente</button>
+                                </div>
                             </form>
                         </div>
 
@@ -111,16 +118,26 @@
                 </div>
                 <div class="card-body p-0" style="max-height: 650px; overflow-y: auto;">
                     <table class="table table-hover mb-0" style="font-size: 0.9rem;">
-                        <thead class="table-light sticky-top"><tr><th>Documento</th><th>Docente</th><th>Correo</th></tr></thead>
+                        <thead class="table-light sticky-top"><tr><th>Documento</th><th>Docente</th><th>Teléfono</th><th class="text-center">Acción</th></tr></thead>
                         <tbody id="tabla-docentes">
                             <% if(docentes.length === 0) { %>
-                                <tr><td colspan="3" class="text-center text-muted py-4">No hay docentes.</td></tr>
+                                <tr><td colspan="4" class="text-center text-muted py-4">No hay docentes.</td></tr>
                             <% } else { %>
                                 <% docentes.forEach(d => { %>
                                     <tr>
                                         <td class="align-middle"><span class="badge bg-secondary"><%= d.documento %></span></td>
                                         <td class="align-middle fw-bold"><%= d.primer_apellido %> <%= d.segundo_apellido %> <%= d.primer_nombre %> <%= d.segundo_nombre %></td>
-                                        <td class="align-middle text-muted"><%= d.email || 'N/A' %></td>
+                                        <td class="align-middle text-muted"><%= d.telefono || 'Sin registrar' %></td>
+                                        <td class="align-middle text-center">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="editarDocente(this)"
+                                                data-id="<%= d.id %>" data-doc="<%= d.documento %>"
+                                                data-pnom="<%= d.primer_nombre %>" data-snom="<%= d.segundo_nombre %>"
+                                                data-pape="<%= d.primer_apellido %>" data-sape="<%= d.segundo_apellido %>"
+                                                data-email="<%= d.email || '' %>" data-tel="<%= d.telefono || '' %>"
+                                                data-emernom="<%= d.contacto_emergencia_nombre || '' %>" data-emertel="<%= d.contacto_emergencia_telefono || '' %>">
+                                                ✏️ Editar
+                                            </button>
+                                        </td>
                                     </tr>
                                 <% }) %>
                             <% } %>
