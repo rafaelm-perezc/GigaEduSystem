@@ -1,8 +1,3 @@
--- =========================================================================
--- MOTOR DE BASE DE DATOS LOCAL: GIGA-EDU ERP (SQLite3)
--- Arquitectura: UUIDv4 para sincronización futura con Firebase/MySQL
--- =========================================================================
-
 -- 1. CONFIGURACIÓN INSTITUCIONAL
 CREATE TABLE IF NOT EXISTS institucion (
     id TEXT PRIMARY KEY,
@@ -18,10 +13,10 @@ CREATE TABLE IF NOT EXISTS institucion (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. SIEE DINÁMICO (Dimensiones de Evaluación)
+-- 2. SIEE DINÁMICO (Dimensiones)
 CREATE TABLE IF NOT EXISTS siee_dimensiones (
     id TEXT PRIMARY KEY,
-    nombre TEXT NOT NULL, -- Ej: Cognitivo, Procedimental, Actitudinal
+    nombre TEXT NOT NULL,
     peso_porcentual REAL NOT NULL,
     estado INTEGER DEFAULT 1,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -31,17 +26,21 @@ CREATE TABLE IF NOT EXISTS siee_dimensiones (
 CREATE TABLE IF NOT EXISTS usuarios (
     id TEXT PRIMARY KEY,
     documento TEXT UNIQUE NOT NULL,
-    nombres TEXT NOT NULL,
-    apellidos TEXT NOT NULL,
-    rol TEXT NOT NULL, -- 'ADMIN', 'SECRETARIA', 'DOCENTE'
+    primer_nombre TEXT NOT NULL,
+    segundo_nombre TEXT DEFAULT '',
+    primer_apellido TEXT NOT NULL,
+    segundo_apellido TEXT DEFAULT '',
+    rol TEXT NOT NULL,
     email TEXT,
     password_hash TEXT NOT NULL,
-    url_firma TEXT, -- Firma digitalizada para el director de grado
+    url_firma TEXT,
+    contacto_emergencia_nombre TEXT DEFAULT '',
+    contacto_emergencia_telefono TEXT DEFAULT '',
     estado INTEGER DEFAULT 1,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. ESTRUCTURA CURRICULAR (Áreas y Asignaturas)
+-- 4. ESTRUCTURA CURRICULAR
 CREATE TABLE IF NOT EXISTS areas (
     id TEXT PRIMARY KEY,
     nombre TEXT NOT NULL,
@@ -59,18 +58,19 @@ CREATE TABLE IF NOT EXISTS asignaturas (
     FOREIGN KEY (id_area) REFERENCES areas(id) ON DELETE CASCADE
 );
 
--- 5. GRADOS Y GRUPOS (Estructura Física)
+-- 5. GRADOS Y GRUPOS
 CREATE TABLE IF NOT EXISTS grados (
     id TEXT PRIMARY KEY,
-    nombre TEXT NOT NULL, -- Ej: 'Grado Noveno'
-    nivel TEXT NOT NULL -- Ej: 'Básica Secundaria'
+    nombre TEXT NOT NULL,
+    nivel TEXT NOT NULL,
+    activo INTEGER DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS grupos (
     id TEXT PRIMARY KEY,
     id_grado TEXT NOT NULL,
-    id_docente_director TEXT, -- El titular que firma el boletín
-    nomenclatura TEXT NOT NULL, -- Ej: 'A', 'B'
+    id_docente_director TEXT,
+    nomenclatura TEXT NOT NULL,
     jornada TEXT NOT NULL,
     año_lectivo TEXT NOT NULL,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -78,13 +78,21 @@ CREATE TABLE IF NOT EXISTS grupos (
     FOREIGN KEY (id_docente_director) REFERENCES usuarios(id)
 );
 
--- 6. ESTUDIANTES Y MATRÍCULAS (Cero Redundancia)
+-- 6. ESTUDIANTES Y MATRÍCULAS
 CREATE TABLE IF NOT EXISTS estudiantes (
     id TEXT PRIMARY KEY,
     tipo_documento TEXT NOT NULL,
     documento TEXT UNIQUE NOT NULL,
-    nombres TEXT NOT NULL,
-    apellidos TEXT NOT NULL,
+    primer_nombre TEXT NOT NULL,
+    segundo_nombre TEXT DEFAULT '',
+    primer_apellido TEXT NOT NULL,
+    segundo_apellido TEXT DEFAULT '',
+    fecha_nacimiento TEXT,
+    direccion TEXT,
+    telefono TEXT,
+    email TEXT,
+    acudiente_nombre TEXT,
+    acudiente_telefono TEXT,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -92,13 +100,13 @@ CREATE TABLE IF NOT EXISTS matriculas (
     id TEXT PRIMARY KEY,
     id_estudiante TEXT NOT NULL,
     id_grupo TEXT NOT NULL,
-    estado TEXT DEFAULT 'Activo', -- 'Activo', 'Retirado', 'Aprobado'
+    estado TEXT DEFAULT 'Activo',
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_estudiante) REFERENCES estudiantes(id) ON DELETE CASCADE,
     FOREIGN KEY (id_grupo) REFERENCES grupos(id)
 );
 
--- 7. ASIGNACIÓN ACADÉMICA (¿Quién dicta qué y en dónde?)
+-- 7. ASIGNACIÓN ACADÉMICA
 CREATE TABLE IF NOT EXISTS asignacion_academica (
     id TEXT PRIMARY KEY,
     id_docente TEXT NOT NULL,
@@ -110,23 +118,23 @@ CREATE TABLE IF NOT EXISTS asignacion_academica (
     FOREIGN KEY (id_grupo) REFERENCES grupos(id)
 );
 
--- 8. PERIODOS ACADÉMICOS (Cronograma)
+-- 8. PERIODOS ACADÉMICOS
 CREATE TABLE IF NOT EXISTS periodos (
     id TEXT PRIMARY KEY,
     numero_periodo INTEGER NOT NULL,
     año_lectivo TEXT NOT NULL,
-    estado_apertura INTEGER DEFAULT 1, -- 1 = Abierto para calificar, 0 = Cerrado
+    estado_apertura INTEGER DEFAULT 1,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 9. CALIFICACIONES Y FALTAS (Transaccional)
+-- 9. CALIFICACIONES
 CREATE TABLE IF NOT EXISTS calificaciones_finales (
     id TEXT PRIMARY KEY,
     id_matricula TEXT NOT NULL,
     id_asignatura TEXT NOT NULL,
     id_periodo TEXT NOT NULL,
     id_docente TEXT NOT NULL,
-    nota_definitiva REAL, -- Calculada automáticamente según el SIEE
+    nota_definitiva REAL,
     faltas INTEGER DEFAULT 0,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_matricula) REFERENCES matriculas(id),
@@ -135,7 +143,6 @@ CREATE TABLE IF NOT EXISTS calificaciones_finales (
     FOREIGN KEY (id_docente) REFERENCES usuarios(id)
 );
 
--- Detalle de la calificación según las dimensiones dinámicas del colegio
 CREATE TABLE IF NOT EXISTS calificaciones_detalle (
     id TEXT PRIMARY KEY,
     id_calificacion_final TEXT NOT NULL,

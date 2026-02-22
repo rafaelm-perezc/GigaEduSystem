@@ -1,32 +1,48 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// Configuración de almacenamiento local temporal
+// Asegurarnos de que exista la carpeta temporal para subidas
+const uploadDir = path.join(__dirname, '../../data/uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configuración de almacenamiento temporal
 const storage = multer.diskStorage({
-    // ¿Dónde guardar temporalmente el archivo?
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../../public/uploads/'));
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
     },
-    // ¿Qué nombre ponerle para que no choque con otros archivos?
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+    filename: (req, file, cb) => {
+        // Renombramos el archivo con la fecha para evitar colisiones
+        cb(null, `${Date.now()}-${file.originalname}`);
     }
 });
 
-// Filtro para aceptar solo imágenes
+// El "Portero": Filtro de archivos permitidos
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-        cb(null, true);
+    // Lista Blanca de formatos permitidos
+    const allowedMimeTypes = [
+        'image/jpeg', 
+        'image/png', 
+        'image/jpg',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // Excel (.xlsx)
+        'application/vnd.ms-excel', // Excel antiguo (.xls)
+        'text/csv' // Archivos separados por comas (.csv)
+    ];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true); // Deja pasar el archivo
     } else {
-        cb(new Error('Formato no soportado. Solo se permiten imágenes.'), false);
+        cb(new Error('Formato no soportado. Solo se permiten imágenes y archivos de Excel/CSV.')); // Lo bloquea
     }
 };
 
+// Crear el middleware final de subida con un límite de 10MB
 const upload = multer({ 
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // Límite de 5MB por imagen
+    limits: { fileSize: 10 * 1024 * 1024 } // 10 Megabytes
 });
 
 module.exports = upload;

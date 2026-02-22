@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
-    <title>Matrículas y Admisiones | Giga-Edu</title>
+    <title>Matrículas | Giga-Edu</title>
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <script src="/sweetalert2/sweetalert2.all.min.js"></script>
-    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script> </head>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+</head>
 <body class="bg-light">
 
 <nav class="navbar navbar-dark bg-dark shadow-sm mb-4">
@@ -24,19 +25,15 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white p-0 border-bottom-0">
                     <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active fw-bold" id="individual-tab" data-bs-toggle="tab" data-bs-target="#individual" type="button" role="tab">Registro Individual / Edición</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold text-success" id="masivo-tab" data-bs-toggle="tab" data-bs-target="#masivo" type="button" role="tab">Carga Masiva (Excel)</button>
-                        </li>
+                        <li class="nav-item"><button class="nav-link active fw-bold" id="individual-tab" data-bs-toggle="tab" data-bs-target="#individual" type="button">Individual / Edición</button></li>
+                        <li class="nav-item"><button class="nav-link fw-bold text-success" data-bs-toggle="tab" data-bs-target="#masivo" type="button">Carga Masiva (Excel)</button></li>
                     </ul>
                 </div>
                 
                 <div class="card-body">
                     <div class="tab-content" id="myTabContent">
                         
-                        <div class="tab-pane fade show active" id="individual" role="tabpanel">
+                        <div class="tab-pane fade show active" id="individual">
                             <form action="/admin/matriculas" method="POST" id="formIndividual">
                                 <input type="hidden" name="id_estudiante" id="id_estudiante">
                                 
@@ -55,29 +52,33 @@
                                     </div>
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col-6"><input type="text" name="nombres" id="nombres" class="form-control form-control-sm" placeholder="Nombres" required></div>
-                                    <div class="col-6"><input type="text" name="apellidos" id="apellidos" class="form-control form-control-sm" placeholder="Apellidos" required></div>
+                                    <div class="col-6"><input type="text" name="primer_nombre" id="primer_nombre" class="form-control form-control-sm text-uppercase" placeholder="Primer Nombre" required></div>
+                                    <div class="col-6"><input type="text" name="segundo_nombre" id="segundo_nombre" class="form-control form-control-sm text-uppercase" placeholder="Segundo Nombre"></div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6"><input type="text" name="primer_apellido" id="primer_apellido" class="form-control form-control-sm text-uppercase" placeholder="Primer Apellido" required></div>
+                                    <div class="col-6"><input type="text" name="segundo_apellido" id="segundo_apellido" class="form-control form-control-sm text-uppercase" placeholder="Segundo Apellido"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label small text-muted mb-0">Fecha de Nacimiento</label>
                                     <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control form-control-sm">
                                 </div>
 
-                                <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Datos de Contacto y Acudiente</h6>
+                                <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Datos de Contacto</h6>
                                 <div class="row mb-2">
-                                    <div class="col-12"><input type="text" name="direccion" id="direccion" class="form-control form-control-sm" placeholder="Dirección de Residencia"></div>
+                                    <div class="col-12"><input type="text" name="direccion" id="direccion" class="form-control form-control-sm" placeholder="Dirección"></div>
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col-6"><input type="text" name="telefono" id="telefono" class="form-control form-control-sm" placeholder="Teléfono Estudiante"></div>
-                                    <div class="col-6"><input type="email" name="email" id="email" class="form-control form-control-sm" placeholder="Correo Electrónico"></div>
+                                    <div class="col-6"><input type="text" name="telefono" id="telefono" class="form-control form-control-sm" placeholder="Teléfono"></div>
+                                    <div class="col-6"><input type="email" name="email" id="email" class="form-control form-control-sm" placeholder="Correo"></div>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-6"><input type="text" name="acudiente_nombre" id="acudiente_nombre" class="form-control form-control-sm" placeholder="Nombre del Acudiente"></div>
-                                    <div class="col-6"><input type="text" name="acudiente_telefono" id="acudiente_telefono" class="form-control form-control-sm bg-warning bg-opacity-10 border-warning" placeholder="Tel. Emergencia (Acudiente)"></div>
+                                    <div class="col-6"><input type="text" name="acudiente_nombre" id="acudiente_nombre" class="form-control form-control-sm text-uppercase" placeholder="Acudiente"></div>
+                                    <div class="col-6"><input type="text" name="acudiente_telefono" id="acudiente_telefono" class="form-control form-control-sm" placeholder="Tel. Acudiente"></div>
                                 </div>
 
                                 <div class="mb-3 p-3 bg-light rounded border">
-                                    <label class="form-label fw-bold">Asignar / Cambiar de Grupo:</label>
+                                    <label class="form-label fw-bold">Asignar / Cambiar Grupo:</label>
                                     <select name="id_grupo" id="id_grupo" class="form-select">
                                         <option value="">(Dejar en blanco si solo actualiza datos)</option>
                                         <% grupos.forEach(g => { %> 
@@ -87,29 +88,22 @@
                                 </div>
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-secondary w-25" onclick="limpiarFormulario()">Limpiar</button>
-                                    <button type="submit" class="btn btn-primary w-75" id="btnGuardar">Matricular / Actualizar</button>
+                                    <button type="submit" class="btn btn-primary w-75" id="btnGuardar">Guardar</button>
                                 </div>
                             </form>
                         </div>
 
-                        <div class="tab-pane fade" id="masivo" role="tabpanel">
+                        <div class="tab-pane fade" id="masivo">
                             <div class="text-center mb-4 mt-3">
-                                <h5>Paso 1: Descargar Plantilla</h5>
-                                <p class="small text-muted">La plantilla ahora incluye columnas para escribir el Grado (Ej: CLEI 3 (6º y 7º)) y el Grupo (Ej: 301) directamente.</p>
                                 <a href="/admin/matriculas/plantilla" class="btn btn-outline-success"><span class="fs-5">📊</span> Descargar Plantilla Excel</a>
+                                <p class="small text-muted mt-2">La plantilla ahora tiene menú desplegable en la Columna J.</p>
                             </div>
                             <hr>
-                            <div class="mt-4">
-                                <h5>Paso 2: Subir Archivo Terminado</h5>
-                                <form action="/admin/matriculas/masivo" method="POST" enctype="multipart/form-data" id="formMasivo">
-                                    <div class="mb-4 mt-3">
-                                        <input type="file" name="archivo_excel" class="form-control form-control-lg" accept=".xlsx" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-success btn-lg w-100" onclick="mostrarCarga()">Subir y Procesar Estudiantes</button>
-                                </form>
-                            </div>
+                            <form action="/admin/matriculas/masivo" method="POST" enctype="multipart/form-data" id="formMasivo">
+                                <input type="file" name="archivo_excel" class="form-control form-control-lg mb-3" accept=".xlsx" required>
+                                <button type="submit" class="btn btn-success btn-lg w-100" onclick="mostrarCarga()">Subir Estudiantes</button>
+                            </form>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -119,17 +113,11 @@
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <span>Directorio de Estudiantes</span>
-                    <span class="badge bg-primary rounded-pill"><%= matriculados.length %> Registros visualizados</span>
+                    <span class="badge bg-primary rounded-pill" id="contador"><%= matriculados.length %> Registros</span>
                 </div>
                 
                 <div class="p-2 bg-light border-bottom">
-                    <form action="/admin/matriculas" method="GET" class="d-flex">
-                        <input type="text" name="q" class="form-control form-control-sm me-2 border-secondary" placeholder="🔍 Buscar por documento, nombres o apellidos..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
-                        <button type="submit" class="btn btn-sm btn-dark px-3">Buscar</button>
-                        <% if(typeof searchQuery !== 'undefined' && searchQuery !== '') { %>
-                            <a href="/admin/matriculas" class="btn btn-sm btn-outline-danger ms-1" title="Limpiar búsqueda">✖</a>
-                        <% } %>
-                    </form>
+                    <input type="text" id="busqueda" class="form-control border-secondary" placeholder="🔍 Buscar por documento, nombres o apellidos (Se actualiza al escribir)..." autocomplete="off">
                 </div>
 
                 <div class="card-body p-0" style="max-height: 650px; overflow-y: auto;">
@@ -142,23 +130,22 @@
                                 <th class="text-center">Acción</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="tabla-estudiantes">
                             <% if(matriculados.length === 0) { %>
-                                <tr><td colspan="4" class="text-center text-muted py-4">No se encontraron estudiantes con esos datos.</td></tr>
+                                <tr><td colspan="4" class="text-center text-muted py-4">No hay estudiantes.</td></tr>
                             <% } else { %>
                                 <% matriculados.forEach(est => { %>
                                     <tr>
                                         <td class="align-middle"><span class="badge bg-secondary"><%= est.documento %></span></td>
-                                        <td class="align-middle fw-bold"><%= est.apellidos %> <%= est.nombres %></td>
-                                        <td class="align-middle text-primary"><%= est.grado %> - <%= est.nomenclatura %></td>
+                                        <td class="align-middle fw-bold"><%= est.primer_apellido %> <%= est.segundo_apellido %> <%= est.primer_nombre %> <%= est.segundo_nombre %></td>
+                                        <td class="align-middle text-primary">
+                                            <% if(est.grado) { %> <%= est.grado %> - <%= est.nomenclatura %> <% } else { %> <span class="text-danger">Sin Grupo</span> <% } %>
+                                        </td>
                                         <td class="align-middle text-center">
                                             <button class="btn btn-sm btn-outline-primary" onclick="editarEstudiante(this)" 
-                                                data-id="<%= est.id_estudiante %>" data-tipo="<%= est.tipo_documento %>" 
-                                                data-doc="<%= est.documento %>" data-nom="<%= est.nombres %>" 
-                                                data-ape="<%= est.apellidos %>" data-nac="<%= est.fecha_nacimiento %>"
-                                                data-dir="<%= est.direccion %>" data-tel="<%= est.telefono %>" 
-                                                data-email="<%= est.email %>" data-acunom="<%= est.acudiente_nombre %>" 
-                                                data-acutel="<%= est.acudiente_telefono %>" data-grupo="<%= est.id_grupo %>">
+                                                data-id="<%= est.id_estudiante %>" data-doc="<%= est.documento %>" 
+                                                data-pnom="<%= est.primer_nombre %>" data-snom="<%= est.segundo_nombre %>" 
+                                                data-pape="<%= est.primer_apellido %>" data-sape="<%= est.segundo_apellido %>">
                                                 ✏️ Editar
                                             </button>
                                         </td>
@@ -173,52 +160,7 @@
     </div>
 </div>
 
-<script>
-    // Manejo de Alertas del Servidor
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('msg') === 'ok') Swal.fire({ title: '¡Éxito!', text: 'El registro se guardó/actualizó correctamente.', icon: 'success', timer: 2000, showConfirmButton: false });
-    if (params.get('msg') === 'masivo_ok') Swal.fire({ title: '¡Carga Exitosa!', text: 'La lista de estudiantes fue procesada.', icon: 'success' });
-    if (params.get('msg') === 'duplicado') Swal.fire('Error', 'El documento ingresado ya le pertenece a otro estudiante.', 'warning');
-    if (params.get('msg') === 'error') Swal.fire('Error', 'Hubo un problema procesando la solicitud.', 'error');
-
-    function mostrarCarga() {
-        if(document.getElementById('formMasivo').checkValidity()) {
-            Swal.fire({ title: 'Procesando Excel...', html: 'Verificando datos y matriculando estudiantes. Por favor espere.', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-        }
-    }
-
-    function editarEstudiante(btn) {
-        // Cargar los datos en el formulario de la Pestaña 1
-        document.getElementById('id_estudiante').value = btn.getAttribute('data-id');
-        document.getElementById('tipo_documento').value = btn.getAttribute('data-tipo');
-        document.getElementById('documento').value = btn.getAttribute('data-doc');
-        document.getElementById('nombres').value = btn.getAttribute('data-nom');
-        document.getElementById('apellidos').value = btn.getAttribute('data-ape');
-        document.getElementById('fecha_nacimiento').value = btn.getAttribute('data-nac') !== 'null' ? btn.getAttribute('data-nac') : '';
-        document.getElementById('direccion').value = btn.getAttribute('data-dir') !== 'null' ? btn.getAttribute('data-dir') : '';
-        document.getElementById('telefono').value = btn.getAttribute('data-tel') !== 'null' ? btn.getAttribute('data-tel') : '';
-        document.getElementById('email').value = btn.getAttribute('data-email') !== 'null' ? btn.getAttribute('data-email') : '';
-        document.getElementById('acudiente_nombre').value = btn.getAttribute('data-acunom') !== 'null' ? btn.getAttribute('data-acunom') : '';
-        document.getElementById('acudiente_telefono').value = btn.getAttribute('data-acutel') !== 'null' ? btn.getAttribute('data-acutel') : '';
-        document.getElementById('id_grupo').value = btn.getAttribute('data-grupo');
-        
-        // Cambiar el estilo del botón
-        document.getElementById('btnGuardar').textContent = 'Guardar Cambios';
-        document.getElementById('btnGuardar').classList.replace('btn-primary', 'btn-warning');
-
-        // Moverse automáticamente a la pestaña de "Registro Individual"
-        var triggerEl = document.querySelector('#individual-tab');
-        var tab = new bootstrap.Tab(triggerEl);
-        tab.show();
-    }
-
-    function limpiarFormulario() {
-        document.getElementById('formIndividual').reset();
-        document.getElementById('id_estudiante').value = '';
-        document.getElementById('btnGuardar').textContent = 'Matricular / Actualizar';
-        document.getElementById('btnGuardar').classList.replace('btn-warning', 'btn-primary');
-    }
-</script>
+<script src="/js/matriculas.js"></script>
 
 </body>
 </html>

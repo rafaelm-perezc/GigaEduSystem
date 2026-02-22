@@ -1,59 +1,66 @@
 const db = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
+const ExcelJS = require('exceljs');
+const fs = require('fs');
 
 const asignacionController = {
     getPanel: (req, res) => {
-        // 1. Autogenerar Grados si la tabla está vacía (Ahorra horas de digitación)
-        const countGrados = db.prepare("SELECT COUNT(*) as count FROM grados").get();
-        if (countGrados.count === 0) {
-            const gradosSeed = ['Transición', 'Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo', 'Octavo', 'Noveno', 'Décimo', 'Undécimo', 'CLEI 3 (6º y 7º)', 'CLEI 4 (8º y 9º)', 'CLEI 5 (10º)', 'CLEI 6 (11º)'];
-            const insertGrado = db.prepare("INSERT INTO grados (id, nombre, nivel) VALUES (?, ?, ?)");
-            db.transaction(() => {
-                gradosSeed.forEach(g => insertGrado.run(uuidv4(), g, 'Básica/Media'));
-            })();
-        }
+        const docentes = db.prepare(`SELECT * FROM usuarios WHERE rol = 'DOCENTE' ORDER BY primer_apellido ASC`).all();
+        const grados = db.prepare('SELECT * FROM grados WHERE activo = 1 ORDER BY nombre ASC').all();
+        const grupos = db.prepare('SELECT g.id, g.nomenclatura, g.jornada, gr.nombre as grado, d.primer_nombre as dir_nom, d.primer_apellido as dir_ape FROM grupos g JOIN grados gr ON g.id_grado = gr.id LEFT JOIN usuarios d ON g.id_docente_director = d.id ORDER BY gr.nombre, g.nomenclatura').all();
+        const asignaturas = db.prepare('SELECT a.id, a.nombre, ar.nombre as area FROM asignaturas a JOIN areas ar ON a.id_area = ar.id ORDER BY ar.nombre, a.nombre').all();
+        
+        // Jornadas Legales de Colombia
+        const jornadasLegales = ['Jornada Única', 'Mañana', 'Tarde', 'Nocturna', 'Sabatina / Fin de semana'];
 
-        // 2. Extraer los datos para las listas desplegables
-        const grados = db.prepare("SELECT * FROM grados").all();
-        const docentes = db.prepare("SELECT * FROM usuarios WHERE rol = 'DOCENTE'").all();
-        const asignaturas = db.prepare("SELECT * FROM asignaturas ORDER BY nombre").all();
-        const grupos = db.prepare(`
-            SELECT g.*, gr.nombre as grado, d.nombres as dir_nombres, d.apellidos as dir_apellidos 
-            FROM grupos g 
-            JOIN grados gr ON g.id_grado = gr.id 
-            LEFT JOIN usuarios d ON g.id_docente_director = d.id
-        `).all();
-
-        res.render('admin/asignacion', { grados, docentes, asignaturas, grupos });
+        res.render('admin/asignacion', { docentes, grados, grupos, asignaturas, jornadasLegales });
     },
 
-    postDocente: async (req, res) => {
-        try {
-            const { documento, nombres, apellidos, email } = req.body;
-            // La contraseña por defecto será el mismo número de documento
-            const salt = await bcrypt.genSalt(10);
-            const password_hash = await bcrypt.hash(documento, salt);
+    // LIVE SEARCH API (Autocompletado de Docentes)
+    buscarDocenteAPI: (req, res) => {
+        const q = req.query.q;
+        if (!q) return res.json([]);
+        const p = `%${q.toUpperCase()}%`;
+        
+        const resultados = db.prepare(`
+            SELECT id, documento, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, email, contacto_emergencia_nombre, contacto_emergencia_telefono
+            FROM usuarios 
+            WHERE rol = 'DOCENTE' AND (documento LIKE ? OR primer_apellido LIKE ? OR primer_nombre LIKE ?)
+            ORDER BY primer_apellido ASC LIMIT 10
+        `).all(p, p, p);
+        
+        res.json(resultados);
+    },
 
-            const stmt = db.prepare('INSERT INTO usuarios (id, documento, nombres, apellidos, rol, email, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?)');
-            stmt.run(uuidv4(), documento, nombres, apellidos, 'DOCENTE', email, password_hash);
+    postDocente: (req, res) => {
+        try {
+            const { documento, email, contacto_emergencia_nombre, contacto_emergencia_telefono } = req.body;
+            const p_nom = (req.body.primer_nombre || '').trim().toUpperCase();
+            const s_nom = (req.body.segundo_nombre || '').trim().toUpperCase();
+            const p_ape = (req.body.primer_apellido || '').trim().toUpperCase();
+            const s_ape = (req.body.segundo_apellido || '').trim().toUpperCase();
+            const c_emerg_nom = (contacto_emergencia_nombre || '').trim().toUpperCase();
+
+            const salt = bcrypt.genSaltSync(10);
+            const hash = bcrypt.hashSync(documento, salt);
+
+            db.prepare('INSERT INTO usuarios (id, documento, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, rol, email, password_hash, contacto_emergencia_nombre, contacto_emergencia_telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+              .run(uuidv4(), documento, p_nom, s_nom, p_ape, s_ape, 'DOCENTE', email, hash, c_emerg_nom, contacto_emergencia_telefono);
             
-            res.redirect('/admin/asignacion?msg=docente_ok');
+            res.redirect('/admin/asignacion?msg=ok');
         } catch (error) {
-            console.error(error);
             res.redirect('/admin/asignacion?msg=error');
         }
     },
 
     postGrupo: (req, res) => {
         try {
-            const { id_grado, nomenclatura, jornada, id_docente_director } = req.body;
-            const stmt = db.prepare('INSERT INTO grupos (id, id_grado, nomenclatura, jornada, id_docente_director, año_lectivo) VALUES (?, ?, ?, ?, ?, ?)');
-            stmt.run(uuidv4(), id_grado, nomenclatura, jornada, id_docente_director || null, new Date().getFullYear().toString());
-            
-            res.redirect('/admin/asignacion?msg=grupo_ok');
+            const { nombre_grado, nomenclatura, jornada, id_docente_director } = req.body;
+            const grado = db.prepare('SELECT id FROM grados WHERE nombre = ?').get(nombre_grado);
+            db.prepare('INSERT INTO grupos (id, id_grado, id_docente_director, nomenclatura, jornada, año_lectivo) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), grado.id, id_docente_director || null, nomenclatura.toUpperCase(), jornada, new Date().getFullYear().toString());
+            res.redirect('/admin/asignacion?msg=ok');
         } catch (error) {
-            console.error(error);
             res.redirect('/admin/asignacion?msg=error');
         }
     },
@@ -61,12 +68,79 @@ const asignacionController = {
     postAsignacion: (req, res) => {
         try {
             const { id_docente, id_asignatura, id_grupo } = req.body;
-            const stmt = db.prepare('INSERT INTO asignacion_academica (id, id_docente, id_asignatura, id_grupo) VALUES (?, ?, ?, ?)');
-            stmt.run(uuidv4(), id_docente, id_asignatura, id_grupo);
-            
-            res.redirect('/admin/asignacion?msg=asig_ok');
+            const existe = db.prepare('SELECT id FROM asignacion_academica WHERE id_asignatura = ? AND id_grupo = ?').get(id_asignatura, id_grupo);
+            if (existe) {
+                db.prepare('UPDATE asignacion_academica SET id_docente = ? WHERE id = ?').run(id_docente, existe.id);
+            } else {
+                db.prepare('INSERT INTO asignacion_academica (id, id_docente, id_asignatura, id_grupo) VALUES (?, ?, ?, ?)').run(uuidv4(), id_docente, id_asignatura, id_grupo);
+            }
+            res.redirect('/admin/asignacion?msg=ok');
         } catch (error) {
-            console.error(error);
+            res.redirect('/admin/asignacion?msg=error');
+        }
+    },
+
+    descargarPlantillaDocentes: async (req, res) => {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Carga_Docentes');
+        
+        sheet.columns = [
+            { header: 'DOCUMENTO_IDENTIDAD', key: 'doc', width: 22 },
+            { header: '1ER_NOMBRE', key: 'p_nom', width: 20 },
+            { header: '2DO_NOMBRE', key: 's_nom', width: 20 },
+            { header: '1ER_APELLIDO', key: 'p_ape', width: 20 },
+            { header: '2DO_APELLIDO', key: 's_ape', width: 20 },
+            { header: 'CORREO_ELECTRONICO', key: 'email', width: 35 },
+            { header: 'CONTACTO_EMERGENCIA', key: 'c_nom', width: 25 },
+            { header: 'TEL_EMERGENCIA', key: 'c_tel', width: 15 }
+        ];
+
+        sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF343A40' } };
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=Plantilla_Docentes.xlsx');
+        await workbook.xlsx.write(res);
+        res.end();
+    },
+
+    cargarMasivoDocentes: async (req, res) => {
+        if (!req.file) return res.redirect('/admin/asignacion?msg=error');
+        try {
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.readFile(req.file.path);
+            const sheet = workbook.getWorksheet(1);
+
+            db.transaction(() => {
+                sheet.eachRow((row, rowNumber) => {
+                    if (rowNumber === 1) return;
+                    
+                    const doc = row.values[1]?.toString().trim();
+                    const p_nom = (row.values[2] || '').toString().trim().toUpperCase();
+                    const s_nom = (row.values[3] || '').toString().trim().toUpperCase();
+                    const p_ape = (row.values[4] || '').toString().trim().toUpperCase();
+                    const s_ape = (row.values[5] || '').toString().trim().toUpperCase();
+                    
+                    // FIX BUG CORREO: Extracción limpia de Hyperlinks
+                    const emailRaw = row.values[6];
+                    const email = (typeof emailRaw === 'object' && emailRaw !== null) ? emailRaw.text : emailRaw?.toString().trim();
+                    
+                    const c_nom = (row.values[7] || '').toString().trim().toUpperCase();
+                    const c_tel = row.values[8]?.toString().trim();
+
+                    if (!doc || !p_nom || !p_ape) return;
+
+                    const existe = db.prepare('SELECT id FROM usuarios WHERE documento = ?').get(doc);
+                    if (!existe) {
+                        const hash = bcrypt.hashSync(doc, bcrypt.genSaltSync(10)); 
+                        db.prepare('INSERT INTO usuarios (id, documento, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, rol, email, password_hash, contacto_emergencia_nombre, contacto_emergencia_telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                          .run(uuidv4(), doc, p_nom, s_nom, p_ape, s_ape, 'DOCENTE', email || null, hash, c_nom, c_tel);
+                    }
+                });
+            })();
+            fs.unlinkSync(req.file.path);
+            res.redirect('/admin/asignacion?msg=masivo_ok');
+        } catch (error) {
             res.redirect('/admin/asignacion?msg=error');
         }
     }

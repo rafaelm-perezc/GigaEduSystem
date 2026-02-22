@@ -43,7 +43,8 @@ const adminCount = db.prepare("SELECT COUNT(*) as count FROM usuarios WHERE rol 
 if(adminCount.count === 0) {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync('admin123', salt);
-    db.prepare("INSERT INTO usuarios (id, documento, nombres, apellidos, rol, password_hash) VALUES ('admin-uuid', 'admin', 'Super', 'Administrador', 'ADMIN', ?)").run(hash);
+    // Ahora inyectamos los datos respetando las nuevas columnas atómicas
+    db.prepare("INSERT INTO usuarios (id, documento, primer_nombre, primer_apellido, rol, password_hash) VALUES ('admin-uuid', 'admin', 'SUPER', 'ADMINISTRADOR', 'ADMIN', ?)").run(hash);
     console.log("🔑 Usuario administrador por defecto creado. (Usuario: admin / Clave: admin123)");
 }
 
