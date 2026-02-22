@@ -7,7 +7,7 @@ const asignacionController = {
         // 1. Autogenerar Grados si la tabla está vacía (Ahorra horas de digitación)
         const countGrados = db.prepare("SELECT COUNT(*) as count FROM grados").get();
         if (countGrados.count === 0) {
-            const gradosSeed = ['Transición', 'Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo', 'Octavo', 'Noveno', 'Décimo', 'Undécimo'];
+            const gradosSeed = ['Transición', 'Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo', 'Octavo', 'Noveno', 'Décimo', 'Undécimo', 'CLEI 3 (6º y 7º)', 'CLEI 4 (8º y 9º)', 'CLEI 5 (10º)', 'CLEI 6 (11º)'];
             const insertGrado = db.prepare("INSERT INTO grados (id, nombre, nivel) VALUES (?, ?, ?)");
             db.transaction(() => {
                 gradosSeed.forEach(g => insertGrado.run(uuidv4(), g, 'Básica/Media'));

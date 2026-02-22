@@ -35,13 +35,33 @@ app.use('/admin', adminRoutes);
 const docenteRoutes = require('./routes/docenteRoutes');
 app.use('/docente', docenteRoutes);
 
-// 6. Ruta de Prueba Inicial (Punto de control)
+// 6. Ruta Principal (Dashboard de Navegación Temporal)
 app.get('/', (req, res) => {
     res.send(`
-        <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
-            <h1 style="color: #2c3e50;">🚀 Motor Giga-Edu Inicializado</h1>
-            <p style="color: #27ae60;">El servidor local está funcionando y la base de datos SQLite ha sido estructurada.</p>
-        </div>
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Giga-Edu ERP | Menú Principal</title>
+            <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+            <div class="container text-center">
+                <h1 class="mb-2 text-primary fw-bold">Giga-Edu ERP</h1>
+                <p class="text-muted mb-5">Sistema Integral de Gestión Educativa</p>
+                
+                <div class="row justify-content-center g-4">
+                    <div class="col-md-4"><a href="/admin/configuracion" class="btn btn-dark btn-lg w-100 py-4 shadow-sm">1. Configuración Institucional</a></div>
+                    <div class="col-md-4"><a href="/admin/academico" class="btn btn-primary btn-lg w-100 py-4 shadow-sm">2. Plan de Estudios</a></div>
+                    <div class="col-md-4"><a href="/admin/asignacion" class="btn btn-success btn-lg w-100 py-4 shadow-sm">3. Personal y Carga Académica</a></div>
+                    
+                    <div class="col-md-4"><a href="/admin/matriculas" class="btn btn-info btn-lg w-100 py-4 shadow-sm text-white">4. Matricular Estudiantes</a></div>
+                    <div class="col-md-4"><a href="/docente/planillas" class="btn btn-warning btn-lg w-100 py-4 shadow-sm">5. Panel Docente (Notas)</a></div>
+                    <div class="col-md-4"><a href="/admin/boletines" class="btn btn-danger btn-lg w-100 py-4 shadow-sm">6. Generar Boletines PDF</a></div>
+                </div>
+            </div>
+        </body>
+        </html>
     `);
 });
 
